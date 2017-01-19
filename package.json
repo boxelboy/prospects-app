@@ -1,0 +1,14 @@
+{
+  "name": "prospects",
+  "version": "0.0.6",
+  "description": "Simple app to collect prospective customers.",
+  "author": "chris saunders",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "cordova": "^6.2.0",
+    "meteor-node-stubs": "^0.2.3"
+  }
+}

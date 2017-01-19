@@ -1,0 +1,322 @@
+<body>
+ 
+    {{#with setting}}
+    {{#if isPage 'login'}}
+    {{/if}}
+        {{#if allowEntry}}
+            {{> menu}}
+            {{#if isPage 'add'}}
+              {{#if isID}}
+                {{#with getProspect}}
+                  {{> prospectsForm}}
+                {{/with}}
+              {{else}}
+                {{> prospectsForm}}
+              {{/if}}              
+            {{/if}}
+            {{#if isPage 'list'}}
+              <ul class="list-group">
+                {{#with prospects}}
+                  {{#if count}}
+                    {{#each prospects}}
+                      {{> listProspects}}
+                    {{/each}}
+                    <p>Prospects will be sent automatically every 2 minutes if you are logged in and once a network connection has been established.</p>
+                    {{#with setting}}
+                      {{#if user}}
+                        <p>Or you can send them manually by pressing the button below.</p>
+                        <div class="form-group">
+                          <button type="submit" id="send" name="send" class="btn btn-primary">Send prospects</button>
+                        </div>
+                      {{/if}}
+                    {{/with}}
+                  {{else}}
+                    <li>No prospects currently stored on device</li>
+                  {{/if}}
+                {{/with}}
+                {{#with settings}}
+                  {{#each settings}}
+                    {{> listSettings}}
+                  {{/each}}
+                {{/with}}
+              </ul>
+            {{/if}}
+      {{else}}
+        {{> loginForm}}
+    {{/if}}
+    {{/with}}
+ 
+</body>
+
+<template name="loginForm">
+    <header>
+      <h1>Prospects</h1>
+    </header>
+    <div class="container">
+      <form class="login">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="form_user" name="user" required="required" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="form_pwd" name="pwd" required="required" />
+        </div>
+        <div class="form-group">
+          <label>Server</label>
+        {{#with setting}}
+          <input type="text" id="form_svr" name="server" placeholder="http://n.n.n.n:port" required="required" value="{{server}}" />
+        {{/with}}
+        </div>
+        <div class="form-group">
+          <button type="submit" id="form_submit" name="login" class="btn btn-primary">Login</button>
+        </div>
+      </form>
+      <div id="message"></div>
+
+      <!-- really sorry about this. it would be better as a seperate tamplate and called in but i dont know how to do that yet-->
+      <div id="spinner" style="display:none;">
+        <div class="blockG" id="rotateG_01"></div>
+        <div class="blockG" id="rotateG_02"></div>
+        <div class="blockG" id="rotateG_03"></div>
+        <div class="blockG" id="rotateG_04"></div>
+        <div class="blockG" id="rotateG_05"></div>
+        <div class="blockG" id="rotateG_06"></div>
+        <div class="blockG" id="rotateG_07"></div>
+        <div class="blockG" id="rotateG_08"></div>
+      </div>
+    </div>
+</template>
+
+<template name="menu">
+    <header>
+      <nav class="navbar">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span> 
+            </button>
+            <h1>Prospects</h1>
+          </div>
+          <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav navbar-right">
+        {{#if isPage 'list'}}
+              <li><a href="#" class="menu" id="add" data-toggle="collapse" data-target=".navbar-collapse.in"><span class="glyphicon glyphicon-user"></span> Add prospects</a></li>
+        {{/if}}
+        {{#if isPage 'add'}}
+              <li><a href="#" class="menu" id="list" data-toggle="collapse" data-target=".navbar-collapse.in"><span class="glyphicon glyphicon-list"></span> List prospects on device</a></li>
+        {{/if}}
+              <!--<li><a href="#" class="menu" id="send"><span class="glyphicon glyphicon-save"></span> Send to server</a></li>-->
+        {{#with setting}}
+            {{#if user}}
+                <li><a href="#" id="logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>      
+            {{else}}
+                <li><a href="#" id="login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>                      
+            {{/if}}
+        {{/with}}
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+</template>
+
+<template name="prospectsForm">
+   <div class="container">
+     <form class="new-prospect" id="add-prospect">
+        <div class="form-group">
+          <label for="form_firstName" class="required">Title</label>
+          <select id="form_title" name="title">
+              {{#if isID}}
+                <option selected="selected" value="{{title}}">{{title}}</option>
+                <option disabled="disabled">-------------------</option>
+                <option value="Mr">Mr</option>
+              {{else}}
+                <option selected="selected" value="Mr">Mr</option>
+              {{/if}} 
+            <option value="Ms">Ms</option>
+            <option value="Mrs">Mrs</option>
+            <option value="Miss">Miss</option>
+            <option value="Dr">Dr</option>
+            <option value="Sir">Sir</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form_firstName" class="required">First name</label>
+          <input type="text" id="form_firstName" name="firstName" required="required" value="{{firstName}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_lastName" class="required">Last name</label>
+          <input type="text" id="form_lastName" name="lastName" required="required" value="{{lastName}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_lastName" class="required">Classification</label>
+          <select id="form_classification" name="classification" class="required" required="required">
+              {{#if isID}}
+                <option selected="selected" value="{{classification}}">{{classification}}</option>
+                <option disabled="disabled">-------------------</option>
+              {{/if}}
+              <option value="Company">Company</option>
+              <option value="Individual">Individual</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form_name" class="required">Company</label>
+          <input type="text" id="form_name" name="name" required="required" value="{{name}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_website" class="required">Website</label>
+          <input type="text" id="form_website" name="website" required="required" value="{{website}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_email" class="required">Email</label>
+          <input type="email" id="form_email" name="email" required="required" value="{{email}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_phone" class="required">Phone</label>
+          <input type="text" id="form_phone" name="phone" required="required" value="{{phone}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_mainAddressStreet">Street</label>
+          <input type="text" id="form_mainAddressStreet" name="mainAddressStreet" value="{{mainAddressStreet}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_mainAddressTown" class="required">Town</label>
+          <input type="text" id="form_mainAddressTown" name="mainAddressTown" required="required" value="{{mainAddressTown}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_mainAddressPostcode" class="required">Postcode/Zip</label>
+          <input type="text" id="form_mainAddressPostcode" name="mainAddressPostcode" required="required" value="{{mainAddressPostcode}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_mainAddressCountry" class="required">Country</label>
+          <select id="form_mainAddressCountry" name="mainAddressCountry">
+              {{#if isID}}
+                <option selected="selected" value="{{mainAddressCountry}}">{{mainAddressCountry}}</option>
+                <option disabled="disabled">-------------------</option>
+                <option value="US">United States</option>
+              {{else}}
+                <option selected="selected" value="US">United States</option>
+                <option disabled="disabled">-------------------</option>
+              {{/if}}
+        <option value="AF">Afghanistan</option><option value="AX">Åland Islands</option><option value="AL">Albania</option><option value="DZ">Algeria</option><option value="AS">American Samoa</option><option value="AD">Andorra</option><option value="AO">Angola</option><option value="AI">Anguilla</option><option value="AQ">Antarctica</option><option value="AG">Antigua &amp; Barbuda</option><option value="AR">Argentina</option><option value="AM">Armenia</option><option value="AW">Aruba</option><option value="AC">Ascension Island</option><option value="AU">Australia</option><option value="AT">Austria</option><option value="AZ">Azerbaijan</option><option value="BS">Bahamas</option><option value="BH">Bahrain</option><option value="BD">Bangladesh</option><option value="BB">Barbados</option><option value="BY">Belarus</option><option value="BE">Belgium</option><option value="BZ">Belize</option><option value="BJ">Benin</option><option value="BM">Bermuda</option><option value="BT">Bhutan</option><option value="BO">Bolivia</option><option value="BA">Bosnia &amp; Herzegovina</option><option value="BW">Botswana</option><option value="BR">Brazil</option><option value="IO">British Indian Ocean Territory</option><option value="VG">British Virgin Islands</option><option value="BN">Brunei</option><option value="BG">Bulgaria</option><option value="BF">Burkina Faso</option><option value="BI">Burundi</option><option value="KH">Cambodia</option><option value="CM">Cameroon</option><option value="CA">Canada</option><option value="IC">Canary Islands</option><option value="CV">Cape Verde</option><option value="BQ">Caribbean Netherlands</option><option value="KY">Cayman Islands</option><option value="CF">Central African Republic</option><option value="EA">Ceuta &amp; Melilla</option><option value="TD">Chad</option><option value="CL">Chile</option><option value="CN">China</option><option value="CX">Christmas Island</option><option value="CC">Cocos (Keeling) Islands</option><option value="CO">Colombia</option><option value="KM">Comoros</option><option value="CG">Congo - Brazzaville</option><option value="CD">Congo - Kinshasa</option><option value="CK">Cook Islands</option><option value="CR">Costa Rica</option><option value="CI">Côte d’Ivoire</option><option value="HR">Croatia</option><option value="CU">Cuba</option><option value="CW">Curaçao</option><option value="CY">Cyprus</option><option value="CZ">Czech Republic</option><option value="DK">Denmark</option><option value="DG">Diego Garcia</option><option value="DJ">Djibouti</option><option value="DM">Dominica</option><option value="DO">Dominican Republic</option><option value="EC">Ecuador</option><option value="EG">Egypt</option><option value="SV">El Salvador</option><option value="GQ">Equatorial Guinea</option><option value="ER">Eritrea</option><option value="EE">Estonia</option><option value="ET">Ethiopia</option><option value="FK">Falkland Islands</option><option value="FO">Faroe Islands</option><option value="FJ">Fiji</option><option value="FI">Finland</option><option value="FR">France</option><option value="GF">French Guiana</option><option value="PF">French Polynesia</option><option value="TF">French Southern Territories</option><option value="GA">Gabon</option><option value="GM">Gambia</option><option value="GE">Georgia</option><option value="DE">Germany</option><option value="GH">Ghana</option><option value="GI">Gibraltar</option><option value="GR">Greece</option><option value="GL">Greenland</option><option value="GD">Grenada</option><option value="GP">Guadeloupe</option><option value="GU">Guam</option><option value="GT">Guatemala</option><option value="GG">Guernsey</option><option value="GN">Guinea</option><option value="GW">Guinea-Bissau</option><option value="GY">Guyana</option><option value="HT">Haiti</option><option value="HN">Honduras</option><option value="HK">Hong Kong SAR China</option><option value="HU">Hungary</option><option value="IS">Iceland</option><option value="IN">India</option><option value="ID">Indonesia</option><option value="IR">Iran</option><option value="IQ">Iraq</option><option value="IE">Ireland</option><option value="IM">Isle of Man</option><option value="IL">Israel</option><option value="IT">Italy</option><option value="JM">Jamaica</option><option value="JP">Japan</option><option value="JE">Jersey</option><option value="JO">Jordan</option><option value="KZ">Kazakhstan</option><option value="KE">Kenya</option><option value="KI">Kiribati</option><option value="XK">Kosovo</option><option value="KW">Kuwait</option><option value="KG">Kyrgyzstan</option><option value="LA">Laos</option><option value="LV">Latvia</option><option value="LB">Lebanon</option><option value="LS">Lesotho</option><option value="LR">Liberia</option><option value="LY">Libya</option><option value="LI">Liechtenstein</option><option value="LT">Lithuania</option><option value="LU">Luxembourg</option><option value="MO">Macau SAR China</option><option value="MK">Macedonia</option><option value="MG">Madagascar</option><option value="MW">Malawi</option><option value="MY">Malaysia</option><option value="MV">Maldives</option><option value="ML">Mali</option><option value="MT">Malta</option><option value="MH">Marshall Islands</option><option value="MQ">Martinique</option><option value="MR">Mauritania</option><option value="MU">Mauritius</option><option value="YT">Mayotte</option><option value="MX">Mexico</option><option value="FM">Micronesia</option><option value="MD">Moldova</option><option value="MC">Monaco</option><option value="MN">Mongolia</option><option value="ME">Montenegro</option><option value="MS">Montserrat</option><option value="MA">Morocco</option><option value="MZ">Mozambique</option><option value="MM">Myanmar (Burma)</option><option value="NA">Namibia</option><option value="NR">Nauru</option><option value="NP">Nepal</option><option value="NL">Netherlands</option><option value="NC">New Caledonia</option><option value="NZ">New Zealand</option><option value="NI">Nicaragua</option><option value="NE">Niger</option><option value="NG">Nigeria</option><option value="NU">Niue</option><option value="NF">Norfolk Island</option><option value="KP">North Korea</option><option value="MP">Northern Mariana Islands</option><option value="NO">Norway</option><option value="OM">Oman</option><option value="PK">Pakistan</option><option value="PW">Palau</option><option value="PS">Palestinian Territories</option><option value="PA">Panama</option><option value="PG">Papua New Guinea</option><option value="PY">Paraguay</option><option value="PE">Peru</option><option value="PH">Philippines</option><option value="PN">Pitcairn Islands</option><option value="PL">Poland</option><option value="PT">Portugal</option><option value="PR">Puerto Rico</option><option value="QA">Qatar</option><option value="RE">Réunion</option><option value="RO">Romania</option><option value="RU">Russia</option><option value="RW">Rwanda</option><option value="WS">Samoa</option><option value="SM">San Marino</option><option value="ST">São Tomé &amp; Príncipe</option><option value="SA">Saudi Arabia</option><option value="SN">Senegal</option><option value="RS">Serbia</option><option value="SC">Seychelles</option><option value="SL">Sierra Leone</option><option value="SG">Singapore</option><option value="SX">Sint Maarten</option><option value="SK">Slovakia</option><option value="SI">Slovenia</option><option value="SB">Solomon Islands</option><option value="SO">Somalia</option><option value="ZA">South Africa</option><option value="GS">South Georgia &amp; South Sandwich Islands</option><option value="KR">South Korea</option><option value="SS">South Sudan</option><option value="ES">Spain</option><option value="LK">Sri Lanka</option><option value="BL">St. Barthélemy</option><option value="SH">St. Helena</option><option value="KN">St. Kitts &amp; Nevis</option><option value="LC">St. Lucia</option><option value="MF">St. Martin</option><option value="PM">St. Pierre &amp; Miquelon</option><option value="VC">St. Vincent &amp; Grenadines</option><option value="SD">Sudan</option><option value="SR">Suriname</option><option value="SJ">Svalbard &amp; Jan Mayen</option><option value="SZ">Swaziland</option><option value="SE">Sweden</option><option value="CH">Switzerland</option><option value="SY">Syria</option><option value="TW">Taiwan</option><option value="TJ">Tajikistan</option><option value="TZ">Tanzania</option><option value="TH">Thailand</option><option value="TL">Timor-Leste</option><option value="TG">Togo</option><option value="TK">Tokelau</option><option value="TO">Tonga</option><option value="TT">Trinidad &amp; Tobago</option><option value="TA">Tristan da Cunha</option><option value="TN">Tunisia</option><option value="TR">Turkey</option><option value="TM">Turkmenistan</option><option value="TC">Turks &amp; Caicos Islands</option><option value="TV">Tuvalu</option><option value="UM">U.S. Outlying Islands</option><option value="VI">U.S. Virgin Islands</option><option value="UG">Uganda</option><option value="UA">Ukraine</option><option value="AE">United Arab Emirates</option><option value="GB">United Kingdom</option><option value="UY">Uruguay</option><option value="UZ">Uzbekistan</option><option value="VU">Vanuatu</option><option value="VA">Vatican City</option><option value="VE">Venezuela</option><option value="VN">Vietnam</option><option value="WF">Wallis &amp; Futuna</option><option value="EH">Western Sahara</option><option value="YE">Yemen</option><option value="ZM">Zambia</option><option value="ZW">Zimbabwe</option></select>
+        </div>
+        <div class="form-group">
+          <label for="form_rating" class="required">Rating</label>
+          <select id="form_rating" name="rating">
+              {{#if isID}}
+                <option selected="selected" value="{{rating}}">{{rating}}</option>
+                <option disabled="disabled">-------------------</option>
+                <option value="1">1 - Hot</option>
+              {{else}}
+                <option selected="selected" value="1">1 - Hot</option>
+              {{/if}}  
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10 - Cold</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form_source" class="required">Prospect Source</label>
+          <select id="form_source" name="source">
+              {{#if isID}}
+                <option selected="selected" value="{{source}}">{{source}}</option>
+                <option disabled="disabled">-------------------</option>
+                <option value="Devcon">Devcon 2016</option>
+              {{else}}
+                <option selected="selected" value="Devcon">Devcon 2016</option>
+              {{/if}}  
+            <option value="Email enquiry">Email enquiry</option>
+            <option value="Referral">Referral</option>
+            <option value="Web Enquiry">Web Enquiry</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form_nextstage" class="required">Next Stage</label>
+          <select id="form_nextstage" name="nextstage">
+              {{#if isID}}
+                <option selected="selected" value="{{nextstage}}">{{nextstage}}</option>
+                <option disabled="disabled">-------------------</option>
+                <option value="See notes">See notes</option>
+              {{else}}
+                <option selected="selected" value="See notes">See notes</option>
+              {{/if}} 
+            <option value="Acceptance">Acceptance</option>
+            <option value="Anniversary">Anniversary</option>
+            <option value="Data Capture">Data Capture</option>
+            <option value="Disclosure Doc">Disclosure Doc</option>
+            <option value="Get Terms">Get Terms</option>
+            <option value="Load policy details,premium &">Load policy details,premium &</option>
+            <option value="New task">New task</option>
+            <option value="Policy delivery">Policy delivery</option>
+            <option value="Put out to market">Put out to market</option>
+            <option value="Scope of service">Scope of service</option>
+            <option value="Set up Review Process">Set up Review Process</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form_duedate" class="required">Due Date</label>
+          <input type="date" name="duedate" value="{{duedate}}" />
+        </div>
+        <div class="form-group">
+          <label for="form_notes" class="required">Notes</label>
+          <textarea id="form_notes" name="notes">{{notes}}</textarea>
+        </div>
+        <div class="form-group">
+          {{#if isID}}
+            <button type="submit" id="form_update" name="button" value='update' class="btn btn-primary">Update</button>
+          {{else}}
+            <button type="submit" id="form_save" name="button" value='save' class="btn btn-primary">Save</button>
+          {{/if}}
+        </div>
+      </form>
+      <!-- really sorry about this. it would be better as a seperate tamplate and called in but i dont know how to do that yet-->
+      <div id="spinner" style="display:none;">
+        <div class="blockG" id="rotateG_01"></div>
+        <div class="blockG" id="rotateG_02"></div>
+        <div class="blockG" id="rotateG_03"></div>
+        <div class="blockG" id="rotateG_04"></div>
+        <div class="blockG" id="rotateG_05"></div>
+        <div class="blockG" id="rotateG_06"></div>
+        <div class="blockG" id="rotateG_07"></div>
+        <div class="blockG" id="rotateG_08"></div>
+      </div>
+    </div>
+    {{#with setting}}
+        {{#if user}}
+            {{send}}
+        {{/if}}
+    {{/with}}
+</template>
+
+ 
+<template name="listProspects">
+  <li><span class="glyphicon glyphicon-plus-sign showProspect" data-id={{_id}}></span>{{firstName}} {{lastName}}</li>
+</template>
+
+<template name="listSettings">
+  <!-- not needed but left in purely for debug purposes -->
+  <li><label>Current user:</label> {{user}}</li>
+  <li><label>Current server:</label>{{server}}</li>
+</template>
+
+<template name="spinner">
+  <div id="spinner" style="display:none;">
+    <div class="blockG" id="rotateG_01"></div>
+    <div class="blockG" id="rotateG_02"></div>
+    <div class="blockG" id="rotateG_03"></div>
+    <div class="blockG" id="rotateG_04"></div>
+    <div class="blockG" id="rotateG_05"></div>
+    <div class="blockG" id="rotateG_06"></div>
+    <div class="blockG" id="rotateG_07"></div>
+    <div class="blockG" id="rotateG_08"></div>
+  </div>
+</template>
